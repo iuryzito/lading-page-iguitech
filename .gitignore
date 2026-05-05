@@ -1,4 +1,5 @@
 preview*.png
+assets/images/*.png
 .edge-cdp/
 .edge-mobile-cdp/
 .DS_Store
