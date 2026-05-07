@@ -103,7 +103,7 @@ a {
 
 .hero-inner {
   display: grid;
-  max-width: 60rem;
+  max-width: 68rem;
   margin: 0 auto;
   place-items: center;
   text-align: center;
@@ -148,7 +148,7 @@ h1 em {
 .video-frame {
   position: relative;
   display: grid;
-  width: min(100%, 43rem);
+  width: min(100%, 56rem);
   aspect-ratio: 16 / 9;
   margin: 0 auto 2rem;
   place-items: center;
@@ -819,11 +819,11 @@ h1 em {
     order: 1;
   }
 
-  .offer-card {
+  .offer-phone {
     order: 2;
   }
 
-  .offer-phone {
+  .offer-card {
     order: 3;
   }
 
@@ -858,7 +858,7 @@ h1 em {
   .hero-inner,
   .sincero-copy {
     width: 100%;
-    max-width: 22rem;
+    max-width: 25rem;
     margin-right: auto;
     margin-left: auto;
     overflow: hidden;
@@ -877,7 +877,7 @@ h1 em {
   }
 
   .video-frame {
-    width: min(100%, 22rem);
+    width: min(calc(100vw - 1.5rem), 27rem);
     margin-bottom: 1.25rem;
   }
 
