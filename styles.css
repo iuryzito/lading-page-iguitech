@@ -1055,6 +1055,7 @@ h1 em {
     grid-row: 1;
     align-self: end;
     justify-self: end;
+    overflow: visible;
   }
 
   .founder-visual .pill {
@@ -1076,8 +1077,10 @@ h1 em {
   }
 
   .founder-person {
-    width: min(46vw, 13rem);
-    max-height: 24rem;
+    width: min(62vw, 18rem);
+    max-width: none;
+    max-height: 30rem;
+    margin-right: -3rem;
   }
 
   .system-stage {
@@ -1091,7 +1094,7 @@ h1 em {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: min(128vw, 34rem);
+    width: min(166vw, 44rem);
     transform: translate(-50%, -50%);
   }
 
