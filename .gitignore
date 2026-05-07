@@ -2,5 +2,6 @@ preview*.png
 assets/images/*.png
 .edge-cdp/
 .edge-mobile-cdp/
+.edge-*/
 .DS_Store
 Thumbs.db
