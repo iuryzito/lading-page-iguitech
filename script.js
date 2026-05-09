@@ -14,6 +14,20 @@ const revealObserver = new IntersectionObserver(
 
 revealItems.forEach((item) => revealObserver.observe(item));
 
+document.querySelectorAll(".faq-item").forEach((item) => {
+  item.addEventListener("toggle", () => {
+    if (!item.open) {
+      return;
+    }
+
+    document.querySelectorAll(".faq-item").forEach((currentItem) => {
+      if (currentItem !== item) {
+        currentItem.open = false;
+      }
+    });
+  });
+});
+
 document.querySelectorAll('a[href^="#"]').forEach((link) => {
   link.addEventListener("click", (event) => {
     const target = document.querySelector(link.getAttribute("href"));

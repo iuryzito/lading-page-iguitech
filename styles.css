@@ -65,41 +65,6 @@ a {
   gap: clamp(0.75rem, 2vw, 1.35rem);
 }
 
-.top-link {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.4rem;
-  color: rgba(255, 255, 255, 0.86);
-  font-family: var(--font-display);
-  font-size: 0.82rem;
-  font-weight: 900;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  transition: color 180ms ease;
-}
-
-.top-link::after {
-  content: "";
-  position: absolute;
-  right: 0;
-  bottom: 0.38rem;
-  left: 0;
-  height: 2px;
-  background: var(--green);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 180ms ease;
-}
-
-.top-link:hover {
-  color: var(--green);
-}
-
-.top-link:hover::after {
-  transform: scaleX(1);
-}
-
 .top-cta,
 .button {
   display: inline-flex;
@@ -715,6 +680,136 @@ h1 em {
   width: 100%;
 }
 
+.faq-landing {
+  padding: clamp(4.5rem, 8vw, 7.5rem) clamp(1rem, 5vw, 4rem);
+  background:
+    radial-gradient(circle at 16% 24%, rgba(0, 239, 25, 0.2), transparent 24rem),
+    radial-gradient(circle at 86% 72%, rgba(255, 255, 255, 0.08), transparent 22rem),
+    linear-gradient(180deg, #060807 0%, #101410 100%);
+}
+
+.section-kicker {
+  margin: 0 auto 1rem;
+  max-width: 58rem;
+  color: var(--green);
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.faq-intro {
+  max-width: 58rem;
+  margin: 0 auto 2.2rem;
+}
+
+.faq-intro h2 {
+  max-width: 48rem;
+  margin: 0;
+  font-family: "Archivo", sans-serif;
+  font-size: clamp(2.1rem, 5vw, 4.8rem);
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.faq-intro p {
+  max-width: 43rem;
+  margin: 1rem 0 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: clamp(1rem, 2vw, 1.18rem);
+  font-weight: 800;
+  line-height: 1.65;
+}
+
+.faq-accordion {
+  display: grid;
+  gap: 0.85rem;
+  max-width: 58rem;
+  margin: 0 auto;
+}
+
+.faq-item {
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.22);
+  transition: border-color 220ms ease, background 220ms ease, transform 220ms ease;
+}
+
+.faq-item[open] {
+  border-color: rgba(0, 239, 25, 0.46);
+  background: rgba(0, 239, 25, 0.08);
+}
+
+.faq-item summary {
+  display: flex;
+  min-height: 4.2rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem;
+  color: #fff;
+  cursor: pointer;
+  font-size: clamp(1rem, 2vw, 1.16rem);
+  font-weight: 900;
+  list-style: none;
+}
+
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-item summary::after {
+  display: grid;
+  flex: 0 0 2rem;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--green);
+  content: "+";
+  font-family: "Archivo", sans-serif;
+  font-size: 1.4rem;
+  line-height: 1;
+  transition: transform 240ms ease, background 240ms ease, color 240ms ease;
+}
+
+.faq-item[open] summary::after {
+  background: var(--green);
+  color: #061008;
+  content: "-";
+  transform: rotate(180deg);
+}
+
+.faq-answer {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 280ms ease;
+}
+
+.faq-item[open] .faq-answer {
+  grid-template-rows: 1fr;
+}
+
+.faq-answer > div {
+  overflow: hidden;
+}
+
+.faq-answer p {
+  margin: 0;
+  padding: 0 1.25rem 1.25rem;
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.7;
+}
+
+.faq-answer strong {
+  color: #fff;
+}
+
 .final-contact {
   display: grid;
   min-height: 42rem;
@@ -744,6 +839,13 @@ h1 em {
   color: rgba(255, 255, 255, 0.66);
   font-size: 0.92rem;
   font-weight: 800;
+}
+
+.footer-links {
+  display: flex;
+  justify-self: end;
+  gap: 1.2rem;
+  align-items: center;
 }
 
 .site-footer a {
@@ -886,11 +988,6 @@ h1 em {
 
   .top-actions {
     gap: 0.65rem;
-  }
-
-  .top-link {
-    min-height: 2.35rem;
-    font-size: 0.68rem;
   }
 
   .top-cta {
@@ -1267,6 +1364,10 @@ h1 em {
     grid-template-columns: 1fr;
     justify-items: center;
     text-align: center;
+  }
+
+  .footer-links {
+    justify-self: center;
   }
 
   .site-footer a {
