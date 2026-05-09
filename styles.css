@@ -59,6 +59,47 @@ a {
   width: 8.5rem;
 }
 
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.75rem, 2vw, 1.35rem);
+}
+
+.top-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.4rem;
+  color: rgba(255, 255, 255, 0.86);
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: color 180ms ease;
+}
+
+.top-link::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0.38rem;
+  left: 0;
+  height: 2px;
+  background: var(--green);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 180ms ease;
+}
+
+.top-link:hover {
+  color: var(--green);
+}
+
+.top-link:hover::after {
+  transform: scaleX(1);
+}
+
 .top-cta,
 .button {
   display: inline-flex;
@@ -839,8 +880,17 @@ h1 em {
 @media (max-width: 640px) {
   .topbar {
     position: fixed;
-    align-items: flex-start;
+    align-items: center;
     padding: 0.75rem;
+  }
+
+  .top-actions {
+    gap: 0.65rem;
+  }
+
+  .top-link {
+    min-height: 2.35rem;
+    font-size: 0.68rem;
   }
 
   .top-cta {
