@@ -1,49 +1,57 @@
 # Landing Page IGUITECH
 
-Landing page principal para venda de acesso ao sistema IGUITECH.
+Landing page estatica da IGUITECH para o dominio principal `iguitech.com`.
 
-## Estrutura
+## Arquivos principais
 
-- `index.html`: estrutura da página.
-- `styles.css`: visual responsivo da landing.
-- `script.js`: animações, scroll suave e carregamento leve do vídeo.
-- `assets/images/`: imagens usadas na landing.
+- `index.html`: estrutura da landing.
+- `styles.css`: layout, responsividade e animacoes.
+- `script.js`: interacoes, chat demonstrativo e animacoes.
+- `privacy.html`: pagina de privacidade.
+- `assets/`: imagens e videos usados na landing.
 
-## Vídeo principal
+## Deploy recomendado: EasyPanel
 
-O vídeo atual é carregado pelo YouTube apenas após o clique do visitante:
+O projeto esta pronto para rodar como container Nginx.
 
-- https://youtu.be/P6GuBffAJEE
+1. Envie este repositorio para o GitHub.
+2. No EasyPanel, crie um novo app usando o repositorio.
+3. Selecione deploy via Dockerfile.
+4. Configure a porta interna como `80`.
+5. Aponte o dominio do app para `iguitech.com`.
+6. Ative SSL/HTTPS no EasyPanel.
 
-Isso mantém o primeiro carregamento mais leve no mobile.
+O `Dockerfile` copia a landing para Nginx e o `nginx.conf` configura cache para assets.
 
-## Imagens
+## Deploy alternativo: GitHub Pages
 
-As imagens finais devem ser colocadas em `assets/images/`, preferencialmente em:
+O projeto tambem inclui workflow em `.github/workflows/pages.yml`.
 
-- `webp` para fotos e banners.
-- `png` apenas quando precisar de transparência.
-- versões separadas para mobile e desktop quando a imagem for grande.
+1. Em `Settings > Pages`, selecione `GitHub Actions`.
+2. Garanta que o arquivo `CNAME` esteja com:
 
-Sugestão de nomes:
+```txt
+iguitech.com
+```
 
-- `iury-hero-desktop.webp`
-- `iury-hero-mobile.webp`
-- `iury-founder.webp`
-- `sistema-whatsapp.webp`
-- `dashboard-notebook.webp`
-- `clientes-grid.webp`
+3. No DNS, crie um CNAME:
 
-## Deploy no GitHub Pages
+```txt
+lp -> iuryzito.github.io
+```
 
-Este projeto já inclui workflow em `.github/workflows/pages.yml`.
-
-Depois de criar o repositório `lading-page-iguitech` no GitHub:
-
-1. Envie o código para a branch `main`.
-2. Em `Settings > Pages`, selecione `GitHub Actions`.
-3. A cada push na `main`, o site será publicado automaticamente.
+4. A cada push na branch `main`, o GitHub Pages publica a landing.
 
 ## Desenvolvimento local
 
-Como é uma landing estática, basta abrir `index.html` no navegador.
+Rode um servidor estatico na pasta do projeto:
+
+```bash
+python -m http.server 4173 --bind 127.0.0.1
+```
+
+Depois acesse:
+
+```txt
+http://localhost:4173/
+```
