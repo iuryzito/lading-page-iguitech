@@ -733,9 +733,9 @@ h3 {
 }
 
 .tweet-track[data-sequence] .tweet-card {
-  opacity: 0;
-  filter: blur(16px);
-  transform: translateY(28px) scale(0.96);
+  opacity: 1;
+  filter: blur(0);
+  transform: translateY(0) scale(1);
 }
 
 .tweet-track[data-sequence].is-visible .tweet-card {

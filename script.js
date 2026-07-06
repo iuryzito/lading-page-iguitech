@@ -1,3 +1,5 @@
+document.body.classList.add("js-ready");
+
 const revealItems = document.querySelectorAll("[data-reveal]");
 
 const revealObserver = new IntersectionObserver(
