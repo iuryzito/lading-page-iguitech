@@ -536,6 +536,10 @@ const demoInventory = [
   { category: "informatica", name: "SSD NVMe 1TB PCIe 4.0", stock: 14, price: "R$489,90", aliases: ["ssd", "nvme"] },
   { category: "informatica", name: "Monitor Full HD 24 IPS", stock: 22, price: "R$749,90", aliases: ["monitor"] },
   { category: "informatica", name: "Cabo HDMI 2.1 (2 metros)", stock: 35, price: "R$39,90", aliases: ["hdmi", "cabo"] },
+  { category: "informatica", name: "Notebook Corporativo i5 8GB SSD 256GB", stock: 11, price: "R$2.899,90", aliases: ["notebook", "i5"] },
+  { category: "informatica", name: "Computador Escritório i3 8GB SSD 240GB", stock: 16, price: "R$1.849,90", aliases: ["computador", "pc", "desktop"] },
+  { category: "informatica", name: "Headset USB com Microfone", stock: 30, price: "R$119,90", aliases: ["headset", "fone"] },
+  { category: "informatica", name: "Impressora Multifuncional Wi-Fi", stock: 7, price: "R$699,90", aliases: ["impressora"] },
 ];
 
 const normalizeText = (text) => String(text || "")
@@ -560,7 +564,7 @@ const findDemoProducts = (normalizedMessage) => {
   if (hasAny(normalizedMessage, ["carro", "veiculo", "strada", "corolla", "s10", "polo", "creta"])) {
     return demoInventory.filter((product) => product.category === "carros" || product.aliases.some((alias) => normalizedMessage.includes(normalizeText(alias))));
   }
-  if (hasAny(normalizedMessage, ["informatica", "mouse", "teclado", "ssd", "monitor", "hdmi"])) {
+  if (hasAny(normalizedMessage, ["informatica", "mouse", "teclado", "ssd", "monitor", "hdmi", "notebook", "computador", "pc", "desktop", "headset", "fone", "impressora"])) {
     return demoInventory.filter((product) => product.category === "informatica" || product.aliases.some((alias) => normalizedMessage.includes(normalizeText(alias))));
   }
   return [];
@@ -602,6 +606,88 @@ const isRecommendationRequest = (text) => hasAny(text, [
   "serve para",
   "bom para",
 ]);
+
+const salesScriptDemoReplies = [
+  {
+    topic: "pdf-notebook-company",
+    terms: ["procurando um notebook para minha empresa", "notebook para minha empresa", "notebook para empresa"],
+    reply: "Claro. Para te indicar melhor, me diga: o notebook será usado para tarefas básicas, sistemas internos, planilhas pesadas, atendimento, design ou outro tipo de uso? Também ajuda saber quantas unidades você precisa.",
+  },
+  {
+    topic: "pdf-cheap-option",
+    terms: ["quero algo barato", "algo barato", "opcao barata"],
+    reply: "Consigo te ajudar com uma opção econômica, mas antes preciso entender o uso. Se for apenas navegação, e-mail e documentos, uma configuração básica pode atender. Se for para sistema, planilhas ou chamadas, recomendo uma opção com SSD e pelo menos 8 GB de RAM para evitar lentidão.",
+  },
+  {
+    topic: "pdf-mouse-keyboard",
+    terms: ["tem mouse e teclado", "mouse e teclado tambem", "voces tem mouse e teclado"],
+    reply: "Sim, na simulação trabalhamos com periféricos como mouse, teclado, headset, monitor, impressora e acessórios. Você procura algo para uso comum, escritório com várias estações ou equipamentos mais resistentes para uso intenso?",
+  },
+  {
+    topic: "pdf-workstation",
+    terms: ["montar uma estacao de trabalho completa", "estacao de trabalho completa", "estacao completa"],
+    reply: "Perfeito. Para uma estação completa, posso considerar notebook ou computador, monitor, teclado, mouse, headset, nobreak e impressora, se necessário. Essa estação será para atendimento, administrativo, financeiro, vendas ou criação?",
+  },
+  {
+    topic: "pdf-service-computer",
+    terms: ["melhor computador para atendimento", "computador para atendimento"],
+    reply: "Para atendimento, normalmente o ideal é uma máquina estável, com SSD, boa memória e periféricos confortáveis. Se o time usa navegador, CRM, WhatsApp Web e chamadas, eu indicaria um conjunto equilibrado para evitar travamentos e melhorar a produtividade.",
+  },
+  {
+    topic: "pdf-warranty",
+    terms: ["produto tem garantia", "tem garantia", "garantia"],
+    reply: "Sim, a garantia e as condições devem ser confirmadas no orçamento final. Posso direcionar seu contato para um consultor verificar o modelo indicado e informar garantia, disponibilidade e condição atual.",
+  },
+  {
+    topic: "pdf-10-computers",
+    terms: ["orcamento para 10 computadores", "10 computadores", "dez computadores"],
+    reply: "Consigo iniciar a qualificação. Para montar um orçamento mais assertivo, me informe o tipo de uso dos computadores, quantidade exata, se precisa de monitores e periféricos, e qual o prazo desejado. Depois encaminho para um consultor finalizar a proposta.",
+  },
+  {
+    topic: "pdf-too-expensive",
+    terms: ["esta caro", "ta caro", "opcao mais em conta", "mais em conta"],
+    reply: "Entendo. Podemos buscar uma alternativa mais acessível. Só vou preservar o mínimo necessário para o equipamento não ficar lento no seu uso. Você prefere reduzir custo, manter desempenho ou encontrar um meio-termo?",
+  },
+  {
+    topic: "pdf-buy-today",
+    terms: ["preciso comprar hoje", "comprar hoje"],
+    reply: "Certo. Nesse caso, o próximo passo é confirmar disponibilidade e condição atual com a equipe comercial. Me informe seu nome, telefone/WhatsApp e o produto ou quantidade desejada para agilizar o atendimento.",
+  },
+  {
+    topic: "pdf-whatsapp",
+    terms: ["pode me chamar no whatsapp", "chamar no whatsapp", "me chama no whatsapp"],
+    reply: "Sim. Me envie seu nome, empresa e WhatsApp. Vou encaminhar seu interesse para a equipe comercial com um resumo da sua necessidade para que o atendimento continue sem você precisar repetir tudo.",
+  },
+  {
+    topic: "pdf-office-equipment",
+    terms: ["preciso de equipamentos para meu escritorio", "equipamentos para meu escritorio", "equipamentos para escritorio"],
+    reply: "Claro. Você precisa de computadores, notebooks, periféricos ou uma estação completa para cada colaborador?",
+  },
+  {
+    topic: "pdf-notebooks-accessories",
+    terms: ["notebooks e acessorios", "acho que notebooks", "notebook e acessorios"],
+    reply: "Perfeito. Quantas pessoas vão usar e quais tarefas elas fazem no dia a dia? Atendimento, planilhas, sistemas, reuniões ou criação de conteúdo?",
+  },
+  {
+    topic: "pdf-five-people",
+    terms: ["sao 5 pessoas", "5 pessoas", "cinco pessoas"],
+    reply: "Para esse cenário, eu recomendaria notebooks intermediários com SSD e 8 GB de RAM, além de mouse, teclado e headset para melhorar a produtividade no atendimento.",
+  },
+  {
+    topic: "pdf-balance",
+    terms: ["equilibrio", "meio-termo", "meio termo"],
+    reply: "Ótimo. Vou encaminhar como perfil recomendado: 5 notebooks intermediários, periféricos básicos e foco em estabilidade para escritório. Me informe seu nome, empresa e WhatsApp para um consultor confirmar disponibilidade e orçamento.",
+  },
+];
+
+const getSalesScriptDemoReply = (text, state) => {
+  const item = salesScriptDemoReplies.find(({ terms }) => hasAny(text, terms));
+  if (!item) return null;
+
+  state.mode = "store";
+  markTopicExplained(state, item.topic);
+  return `${item.reply}\n\nEsta conversa é uma demonstração de IA de vendas da IGUITECH.`;
+};
 
 const wasTopicExplained = (state, topic) => Boolean(state.explainedTopics?.includes(topic));
 
@@ -813,6 +899,11 @@ const createSmartLocalDemoReply = ({ message, mediaType }) => {
   }
 
   const productsInMessage = findDemoProducts(text);
+  const salesScriptReply = getSalesScriptDemoReply(text, state);
+
+  if (salesScriptReply) {
+    return salesScriptReply;
+  }
 
   if (isCheapestRequest(text)) {
     state.mode = "store";
