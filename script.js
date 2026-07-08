@@ -223,15 +223,17 @@ const getMobileSafeRobotTarget = (target, size) => {
       const rect = { left: x, top: y, right: x + size, bottom: y + size * 1.22 };
       const overlap = blockers.reduce((sum, blocker) => sum + rectOverlapArea(rect, blocker), 0);
       const travel = Math.abs(x - target.x) + Math.abs(y - target.y);
-      return { x, y, score: overlap * 100 + travel };
+      return { x, y, overlap, score: overlap * 100 + travel };
     })
     .sort((a, b) => a.score - b.score)[0];
+
+  floatingRobot?.classList.toggle("is-low-profile", (best?.overlap || 0) > 120);
 
   return {
     ...target,
     x: best?.x ?? target.x,
     y: best?.y ?? target.y,
-    scale: Math.min(target.scale, 0.86),
+    scale: Math.min(target.scale, (best?.overlap || 0) > 120 ? 0.68 : 0.86),
   };
 };
 
