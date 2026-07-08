@@ -164,17 +164,76 @@ renderHeroConversation("mix");
 
 const floatingRobot = document.querySelector("#floatingRobot");
 const robotStops = [
-  { selector: ".hero", desktop: { x: 0.34, y: 0.16 }, mobile: { x: 0.84, y: 0.62 } },
-  { selector: ".proof-carousel", desktop: { x: 0.22, y: 0.46 }, mobile: { x: 0.78, y: 0.16 } },
-  { selector: ".delivery", desktop: { x: 0.78, y: 0.18 }, mobile: { x: 0.78, y: 0.12 } },
-  { selector: ".ai-section", desktop: { x: 0.24, y: 0.22 }, mobile: { x: 0.78, y: 0.12 } },
-  { selector: ".founder", desktop: { x: 0.78, y: 0.2 }, mobile: { x: 0.78, y: 0.12 } },
-  { selector: ".clients", desktop: { x: 0.26, y: 0.25 }, mobile: { x: 0.78, y: 0.14 } },
-  { selector: ".pricing", desktop: { x: 0.78, y: 0.2 }, mobile: { x: 0.78, y: 0.14 } },
-  { selector: ".faq", desktop: { x: 0.28, y: 0.2 }, mobile: { x: 0.78, y: 0.14 } },
+  { selector: ".hero", desktop: { x: 0.34, y: 0.16 }, mobile: { x: 0.88, y: 0.76 } },
+  { selector: ".proof-carousel", desktop: { x: 0.22, y: 0.46 }, mobile: { x: 0.12, y: 0.78 } },
+  { selector: ".delivery", desktop: { x: 0.78, y: 0.18 }, mobile: { x: 0.88, y: 0.78 } },
+  { selector: ".ai-section", desktop: { x: 0.24, y: 0.22 }, mobile: { x: 0.12, y: 0.78 } },
+  { selector: ".founder", desktop: { x: 0.78, y: 0.2 }, mobile: { x: 0.88, y: 0.78 } },
+  { selector: ".clients", desktop: { x: 0.26, y: 0.25 }, mobile: { x: 0.12, y: 0.78 } },
+  { selector: ".pricing", desktop: { x: 0.78, y: 0.2 }, mobile: { x: 0.88, y: 0.78 } },
+  { selector: ".faq", desktop: { x: 0.28, y: 0.2 }, mobile: { x: 0.12, y: 0.78 } },
 ];
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+const mobileRobotSafeSelectors = [
+  "h1",
+  "h2",
+  "h3",
+  "p",
+  ".button",
+  ".tweet-card",
+  ".feature-card",
+  ".whatsapp-panel",
+  ".founder-photo img",
+  ".logo-marquee",
+  ".price-card",
+  ".faq-item",
+];
+
+const rectOverlapArea = (a, b) => {
+  const width = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
+  const height = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+  return width * height;
+};
+
+const getMobileSafeRobotTarget = (target, size) => {
+  if (window.innerWidth >= 760) return target;
+
+  const safePad = 12;
+  const maxX = window.innerWidth - size - safePad;
+  const maxY = window.innerHeight - size * 1.22 - safePad;
+  const candidatePoints = [
+    { x: target.x, y: target.y },
+    { x: safePad, y: safePad + 72 },
+    { x: maxX, y: safePad + 72 },
+    { x: safePad, y: window.innerHeight * 0.48 },
+    { x: maxX, y: window.innerHeight * 0.48 },
+    { x: safePad, y: maxY },
+    { x: maxX, y: maxY },
+  ];
+  const blockers = mobileRobotSafeSelectors
+    .flatMap((selector) => [...document.querySelectorAll(selector)])
+    .map((element) => element.getBoundingClientRect())
+    .filter((rect) => rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.top < window.innerHeight);
+
+  const best = candidatePoints
+    .map((point) => {
+      const x = clamp(point.x, safePad, maxX);
+      const y = clamp(point.y, safePad, maxY);
+      const rect = { left: x, top: y, right: x + size, bottom: y + size * 1.22 };
+      const overlap = blockers.reduce((sum, blocker) => sum + rectOverlapArea(rect, blocker), 0);
+      const travel = Math.abs(x - target.x) + Math.abs(y - target.y);
+      return { x, y, score: overlap * 100 + travel };
+    })
+    .sort((a, b) => a.score - b.score)[0];
+
+  return {
+    ...target,
+    x: best?.x ?? target.x,
+    y: best?.y ?? target.y,
+    scale: Math.min(target.scale, 0.86),
+  };
+};
 
 const getRobotTargets = () => {
   const isMobile = window.innerWidth < 760;
@@ -240,12 +299,14 @@ const updateRobotTarget = () => {
   const scrollDelta = window.scrollY - lastScrollY;
   lastScrollY = window.scrollY;
 
-  robotTarget = robotOverride || {
+  const nextTarget = robotOverride || {
     x: from.x + (to.x - from.x) * eased,
     y: from.y + (to.y - from.y) * eased + Math.sin(Date.now() / 900) * 3,
     rotation: -3 + eased * 6 + clamp(scrollDelta, -18, 18) * 0.035,
     scale: 0.96 + Math.sin(progress * Math.PI) * 0.06,
   };
+
+  robotTarget = getMobileSafeRobotTarget(nextTarget, getRobotSize());
 };
 
 const activeRobotSection = () => {
@@ -291,6 +352,7 @@ const clearRobotCueClasses = () => {
 
 const triggerRobotCue = (forcedSelector = "") => {
   if (!floatingRobot) return;
+  if (window.innerWidth < 760) return;
 
   const active = activeRobotSection();
   if (!active && !forcedSelector) return;
@@ -1271,7 +1333,7 @@ const sendChatMessage = async (message, media = null) => {
   }
 };
 
-chatButton?.addEventListener("click", () => {
+const openAiChatPanel = () => {
   chatPanel?.classList.add("is-open");
   chatPanel?.classList.remove("is-shaking");
   document.body.classList.add("chat-open");
@@ -1279,6 +1341,18 @@ chatButton?.addEventListener("click", () => {
   window.setTimeout(() => chatPanel?.classList.add("is-shaking"), 80);
   window.setTimeout(() => chatPanel?.classList.remove("is-shaking"), 850);
   setTimeout(() => chatInput?.focus(), 500);
+};
+
+if (window.matchMedia("(max-width: 640px)").matches) {
+  chatPanel?.classList.remove("is-open");
+}
+
+chatButton?.addEventListener("click", openAiChatPanel);
+
+chatPanel?.querySelector(".wa-header")?.addEventListener("click", () => {
+  if (window.matchMedia("(max-width: 640px)").matches && !chatPanel.classList.contains("is-open")) {
+    openAiChatPanel();
+  }
 });
 
 chatAttach?.addEventListener("click", () => chatMedia?.click());
