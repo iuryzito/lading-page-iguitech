@@ -145,11 +145,17 @@ const heroConversations = {
 const heroChat = document.querySelector(".chat-bubbles");
 const heroLeadCards = document.querySelectorAll(".lead-card[data-conversation]");
 
+const appendStrongText = (element, label, text = "") => {
+  const strong = document.createElement("strong");
+  strong.textContent = label;
+  element.append(strong, document.createTextNode(text));
+};
+
 const renderHeroConversation = (conversationId) => {
   const conversation = heroConversations[conversationId] || heroConversations.mix;
   if (!heroChat) return;
 
-  heroChat.innerHTML = "";
+  heroChat.replaceChildren();
 
   conversation.forEach((message, index) => {
     if (message.type === "typing") {
@@ -157,7 +163,7 @@ const renderHeroConversation = (conversationId) => {
       typing.className = `typing-bubble ${message.side === "ai" ? "ai-typing" : "client-typing"}`;
       typing.style.animationDelay = `${index * 260}ms`;
       const [name, ...rest] = message.text.split(" ");
-      typing.innerHTML = `<strong>${name}</strong> ${rest.join(" ")}`;
+      appendStrongText(typing, name, ` ${rest.join(" ")}`);
       heroChat.appendChild(typing);
       return;
     }
@@ -166,9 +172,13 @@ const renderHeroConversation = (conversationId) => {
       const row = document.createElement("div");
       row.className = "product-row";
       row.style.animationDelay = `${index * 260}ms`;
-      row.innerHTML = message.items
-        .map(([label, value]) => `<article>${label}<strong>${value}</strong></article>`)
-        .join("");
+      message.items.forEach(([label, value]) => {
+        const article = document.createElement("article");
+        const price = document.createElement("strong");
+        price.textContent = value;
+        article.append(document.createTextNode(label), price);
+        row.appendChild(article);
+      });
       heroChat.appendChild(row);
       return;
     }
@@ -176,7 +186,10 @@ const renderHeroConversation = (conversationId) => {
     const bubble = document.createElement("p");
     bubble.className = `bubble ${message.side}`;
     bubble.style.animationDelay = `${index * 260}ms`;
-    bubble.innerHTML = `<strong>${message.name}</strong>${message.text}<span>${message.time}</span>`;
+    appendStrongText(bubble, message.name, message.text);
+    const time = document.createElement("span");
+    time.textContent = message.time;
+    bubble.appendChild(time);
     heroChat.appendChild(bubble);
   });
 };
@@ -586,12 +599,25 @@ const chatRecord = document.querySelector("#aiRecord");
 const chatMessages = document.querySelector("#aiMessages");
 const webhookUrl = "";
 const useLocalDemoAgent = true;
+const allowedMediaTypes = ["image", "audio"];
+const maxMediaSizeByType = {
+  image: 5 * 1024 * 1024,
+  audio: 8 * 1024 * 1024,
+};
 let pendingMedia = null;
 let mediaRecorder = null;
 let recordedChunks = [];
 let chatMemory = [];
 let chatState = {};
 const maxChatMemoryItems = 18;
+
+const reportClientError = (error, context) => {
+  trackEvent("client_error", {
+    context,
+    error_name: error?.name || "Error",
+  });
+  console.error(`[IGUITECH] ${context}`, error);
+};
 
 const getChatSessionId = () => {
   return globalThis.crypto?.randomUUID?.() || `iguitech-${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -1168,6 +1194,20 @@ const getMediaType = (fileOrType = "") => {
   return "file";
 };
 
+const validateMediaFile = (file) => {
+  if (!file) return "Arquivo nao encontrado.";
+  const mediaType = getMediaType(file);
+  if (!allowedMediaTypes.includes(mediaType)) {
+    return "Formato nao permitido. Envie apenas imagem ou audio.";
+  }
+  if (file.size > maxMediaSizeByType[mediaType]) {
+    return mediaType === "image"
+      ? "Imagem muito pesada. Envie uma imagem de ate 5 MB."
+      : "Audio muito pesado. Envie um audio de ate 8 MB.";
+  }
+  return "";
+};
+
 const createMediaUrl = (media) => {
   if (!media) return "";
   if (media.url) return media.url;
@@ -1307,6 +1347,10 @@ const buildFormPayload = (message, media) => {
 };
 
 const sendToWebhook = (message, media = null) => {
+  if (!webhookUrl) {
+    return Promise.reject(new Error("Webhook URL nao configurada."));
+  }
+
   if (media?.file) {
     return fetch(webhookUrl, {
       method: "POST",
@@ -1343,6 +1387,16 @@ const setChatDisabled = (isDisabled) => {
 
 const sendChatMessage = async (message, media = null) => {
   const mediaType = media ? getMediaType(media.file) : null;
+  if (media?.file) {
+    const mediaError = validateMediaFile(media.file);
+    if (mediaError) {
+      addMessage(mediaError, "ai");
+      pendingMedia = null;
+      if (chatMedia) chatMedia.value = "";
+      return;
+    }
+  }
+
   trackEvent("ai_chat_message_send", {
     input_type: mediaType || "text",
     has_text: Boolean(message),
@@ -1377,7 +1431,7 @@ const sendChatMessage = async (message, media = null) => {
     loading.textContent =
       "A conexao com a IA ainda nao retornou uma resposta. No n8n, finalize o fluxo com o no Respond to Webhook retornando JSON.";
     loading.classList.remove("loading");
-    console.error(error);
+    reportClientError(error, "ai_chat_response");
   } finally {
     setChatDisabled(false);
     chatInput?.focus();
@@ -1417,6 +1471,13 @@ chatAttach?.addEventListener("click", () => {
 chatMedia?.addEventListener("change", () => {
   const file = chatMedia.files?.[0];
   if (!file) return;
+  const mediaError = validateMediaFile(file);
+  if (mediaError) {
+    addMessage(mediaError, "ai");
+    chatMedia.value = "";
+    pendingMedia = null;
+    return;
+  }
   pendingMedia = { file };
   trackEvent("ai_chat_media_selected", {
     input_type: getMediaType(file),
@@ -1447,6 +1508,11 @@ chatRecord?.addEventListener("click", async () => {
       chatRecord.classList.remove("is-recording");
       const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || "audio/webm" });
       const file = new File([blob], `audio-iguitech-${Date.now()}.webm`, { type: blob.type });
+      const mediaError = validateMediaFile(file);
+      if (mediaError) {
+        addMessage(mediaError, "ai");
+        return;
+      }
       sendChatMessage("", { file });
     });
     mediaRecorder.start();
@@ -1454,7 +1520,7 @@ chatRecord?.addEventListener("click", async () => {
     trackEvent("ai_chat_audio_record_start");
   } catch (error) {
     addMessage("Nao consegui acessar o microfone. Verifique a permissao do navegador.", "ai");
-    console.error(error);
+    reportClientError(error, "audio_record_permission");
   }
 });
 

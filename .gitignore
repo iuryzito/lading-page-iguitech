@@ -2,5 +2,17 @@ preview*.png
 .edge-cdp/
 .edge-mobile-cdp/
 .edge-*/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+node_modules/
+dist/
+build/
+coverage/
 .DS_Store
 Thumbs.db
