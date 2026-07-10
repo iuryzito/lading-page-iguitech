@@ -1486,12 +1486,12 @@ h3 {
   line-height: 1;
 }
 
-#aiRecord::before {
+#aiRecord span {
+  display: block;
   width: 0.72rem;
   height: 1rem;
   border-radius: 999px;
   background: currentColor;
-  content: "";
 }
 
 #aiRecord.is-recording {
@@ -1583,7 +1583,7 @@ h3 {
   padding-block: clamp(4.8rem, 7vh, 5.8rem) clamp(1.4rem, 4vh, 2.5rem);
   background:
     linear-gradient(90deg, rgba(8, 10, 9, 0.74), rgba(8, 10, 9, 0.94)),
-    url("assets/images/notebook-dashboard.png") center / cover no-repeat;
+    url("assets/images/notebook-dashboard-optimized.jpg") center / cover no-repeat;
 }
 
 .price-card {
