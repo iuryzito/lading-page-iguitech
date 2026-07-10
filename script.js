@@ -57,7 +57,7 @@ document.querySelectorAll("main > section").forEach((section) => sectionViewObse
 document.querySelectorAll("a[href]").forEach((link) => {
   link.addEventListener("click", () => {
     const href = link.getAttribute("href") || "";
-    const isSignup = href.includes("app.iguitech.com/signup");
+    const isSignup = href.includes("app.iguitech.com") && href.includes("signup");
     const isAnchor = href.startsWith("#");
     trackEvent(isSignup ? "cta_signup_click" : "link_click", {
       link_text: link.textContent.trim(),
