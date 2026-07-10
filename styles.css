@@ -1510,6 +1510,7 @@ h3 {
 
 .founder-photo img {
   width: min(100%, 32rem);
+  height: auto;
   margin: 0 auto;
   border-radius: 1.2rem;
   box-shadow: var(--shadow);
@@ -2989,7 +2990,9 @@ h3 {
   }
 
   .founder-photo img {
-    width: min(100%, 25rem);
+    width: min(70vw, 13.5rem);
+    max-width: 13.5rem;
+    height: auto;
   }
 
   .price-card h2 {
