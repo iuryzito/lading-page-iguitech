@@ -1,5 +1,14 @@
 document.body.classList.add("js-ready");
 
+const trackEvent = (eventName, params = {}) => {
+  if (typeof window.gtag !== "function") return;
+  window.gtag("event", eventName, {
+    page_path: window.location.pathname,
+    page_location: window.location.href,
+    ...params,
+  });
+};
+
 const revealItems = document.querySelectorAll("[data-reveal]");
 
 const revealObserver = new IntersectionObserver(
@@ -29,6 +38,34 @@ const sequenceObserver = new IntersectionObserver(
 );
 
 sequenceItems.forEach((item) => sequenceObserver.observe(item));
+
+const sectionViewObserver = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting || entry.target.dataset.trackedView === "true") return;
+      entry.target.dataset.trackedView = "true";
+      trackEvent("section_view", {
+        section_id: entry.target.id || entry.target.className || entry.target.tagName.toLowerCase(),
+      });
+    });
+  },
+  { threshold: 0.45 }
+);
+
+document.querySelectorAll("main > section").forEach((section) => sectionViewObserver.observe(section));
+
+document.querySelectorAll("a[href]").forEach((link) => {
+  link.addEventListener("click", () => {
+    const href = link.getAttribute("href") || "";
+    const isSignup = href.includes("app.iguitech.com/signup");
+    const isAnchor = href.startsWith("#");
+    trackEvent(isSignup ? "cta_signup_click" : "link_click", {
+      link_text: link.textContent.trim(),
+      link_url: link.href,
+      link_type: isAnchor ? "anchor" : "external",
+    });
+  });
+});
 
 document.querySelectorAll("[data-tilt]").forEach((element) => {
   const target = element.querySelector(".platform-window") || element;
@@ -149,6 +186,10 @@ heroLeadCards.forEach((card) => {
     heroLeadCards.forEach((item) => item.classList.remove("active"));
     card.classList.add("active");
     renderHeroConversation(card.dataset.conversation);
+    trackEvent("hero_conversation_select", {
+      conversation: card.dataset.conversation || "unknown",
+      card_title: card.querySelector("strong")?.textContent?.trim() || "",
+    });
   };
 
   card.addEventListener("click", activate);
@@ -514,6 +555,9 @@ faqItems.forEach((item) => {
       item.classList.add("is-open");
       button.setAttribute("aria-expanded", "true");
       setFaqHeight(item);
+      trackEvent("faq_open", {
+        question: button.textContent.trim(),
+      });
     }
   });
 });
@@ -1299,6 +1343,11 @@ const setChatDisabled = (isDisabled) => {
 
 const sendChatMessage = async (message, media = null) => {
   const mediaType = media ? getMediaType(media.file) : null;
+  trackEvent("ai_chat_message_send", {
+    input_type: mediaType || "text",
+    has_text: Boolean(message),
+    message_length: String(message || "").length,
+  });
   const fallbackLabel = media ? (mediaType === "audio" ? "Audio enviado" : "Imagem enviada") : message;
   addMessage(fallbackLabel, "user", media);
   rememberChatMessage("user", message || fallbackLabel, mediaType);
@@ -1336,6 +1385,9 @@ const sendChatMessage = async (message, media = null) => {
 };
 
 const openAiChatPanel = () => {
+  trackEvent("ai_chat_open", {
+    source: "button_or_header",
+  });
   chatPanel?.classList.add("is-open");
   chatPanel?.classList.remove("is-shaking");
   document.body.classList.add("chat-open");
@@ -1357,12 +1409,18 @@ chatPanel?.querySelector(".wa-header")?.addEventListener("click", () => {
   }
 });
 
-chatAttach?.addEventListener("click", () => chatMedia?.click());
+chatAttach?.addEventListener("click", () => {
+  trackEvent("ai_chat_attach_click");
+  chatMedia?.click();
+});
 
 chatMedia?.addEventListener("change", () => {
   const file = chatMedia.files?.[0];
   if (!file) return;
   pendingMedia = { file };
+  trackEvent("ai_chat_media_selected", {
+    input_type: getMediaType(file),
+  });
   chatInput?.focus();
 });
 
@@ -1393,6 +1451,7 @@ chatRecord?.addEventListener("click", async () => {
     });
     mediaRecorder.start();
     chatRecord.classList.add("is-recording");
+    trackEvent("ai_chat_audio_record_start");
   } catch (error) {
     addMessage("Nao consegui acessar o microfone. Verifique a permissao do navegador.", "ai");
     console.error(error);
